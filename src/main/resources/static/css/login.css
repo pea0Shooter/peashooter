@@ -1,0 +1,116 @@
+body {
+    /*设置背景图片*/
+    background-image: url('../pic/loginback.jpg');
+    background-size: 100% 100%;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    /*关键*/
+    background-position: center;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    min-width: 1600px;
+    z-index: -10;
+    zoom: 1;
+}
+
+.container-login {
+
+
+    margin: 240px auto;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* background-image: url('../pic/loginback.jpg'); */
+    background-size: cover;
+    background-position: center;
+    
+
+}
+
+.login-dialog {
+
+    display: flex;
+    flex-direction: column;
+
+    width: 600px;
+    height: 360px;
+    padding-top: 20px;
+    border-radius: 10px;
+    border: none;
+    /* background-color: rgba(0, 0, 0, 0.25); */
+
+}
+
+.login-dialog h3 {
+    text-align: center;
+
+}
+
+.login-dialog .row {
+    position: relative;
+    width: 300px;
+    height: 40px;
+    margin: 10px auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+}
+
+.login-dialog .uname {
+    position: absolute;
+    left: -60px;
+}
+
+.login-dialog .pwd {
+    position: absolute;
+    left: -55px;
+}
+
+.login-dialog .row>input {
+    width: 100%;
+    height: 35px;
+    border: gray solid 1px;
+    border-radius: 5px;
+    /* border: none; */
+
+    outline: none;
+    padding-left: 10px;
+    color: whitesmoke;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.login-dialog button {
+    background-color: rgb(66, 59, 59);
+    width: 275px;
+    color: pink;
+    border: none;
+    margin: 10px;
+}
+
+.login-dialog button a {
+    color: pink;
+    text-decoration: none;
+    background-color: rgba(66, 59, 59, 0.6);
+    border: 1px solid #ccc;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+.form-control::placeholder {
+    color: pink;
+}
+
+h3 {
+    color: black;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: "微软雅黑", Arial, sans-serif;
+    line-height: 1.5;
+    margin-bottom: 10px;
+}

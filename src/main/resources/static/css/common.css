@@ -1,0 +1,80 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+em {
+    font-style: normal;
+}
+
+li {
+    list-style: none;
+}
+
+img {
+    border: 0;
+    /* 删除图片下的空隙，与文字对齐 */
+    vertical-align: middle;
+}
+
+.w {
+    width: 1200px;
+    margin: 0 auto;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.router {
+    position: absolute;
+    width: 15%;
+    background-color: skyblue;
+}
+
+
+ .page-scroll {
+
+     height: 100%;
+
+ }
+
+
+
+ .page-scroll .el-scrollbar__wrap {
+
+     overflow-x: hidden;
+
+ }
+
+.el-aside::-webkit-scrollbar {
+
+    display: none;
+
+}
+.el-header {
+    position: relative;
+}
+
+.el-avatar {
+    position: absolute;
+    top: 12px;
+    left: 180px;
+}
+
+h1 {
+    text-align: center;
+}
+.el-header{
+    background-color: whitesmoke;
+}
+
+.model{
+   
+    position: absolute;
+    z-index: 1000;
+    left: 40%;
+    top: 20%;
+}

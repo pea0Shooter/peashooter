@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书列表展示</title>
+    
+    <!-- 必须先引入vue，  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <!-- 引入element 的组件库-->
+    <!-- 引入element 样式-->
+    <link rel="stylesheet" href="http://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="http://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/list.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- <script src="js/jq-paginator.js"></script> -->
+
+</head>
+
+<body>
+
+<div class="router">
+    <ul>
+        <li>1</li>
+        <li>1</li>
+        <li>1</li>
+        <li>1</li>
+    </ul>
+</div>
+<div class="main">
+    <div class="bookContainer">
+        <h2>图书列表展示</h2>
+        <div class="navbar-justify-between">
+            <div>
+                <button class="btn btn-outline-info" type="button" onclick="location.href='book_add.html'">添加图书</button>
+                <button class="btn btn-outline-info" type="button" onclick="batchDelete()">批量删除</button>
+            </div>
+        </div>
+
+
+        <div id="app">
+            <table>
+                <thead>
+                <tr>
+                    <td>选择</td>
+                    <td class="width100">图书ID</td>
+                    <td>书名</td>
+                    <td>作者</td>
+                    <td>数量</td>
+                    <td>定价</td>
+                    <td>出版社</td>
+                    <td>状态</td>
+                    <td class="width200">操作</td>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="book in pageList" keys="book.id">
+                    <td><input type="checkbox" name="selectBook" :value="book.id" id="selectBook" class="book-select"></td>
+                    <td class="width100">{{book.id}}</td>
+                    <td>{{book.bookName}}</td>
+                    <td>{{book.author}}</td>
+                    <td>{{book.count}}</td>
+                    <td>{{book.price}}</td>
+                    <td>{{book.publish}}</td>
+                    <td>{{book.statusCN}}</td>
+                    <td >
+                        <div class="op">
+                            
+                            <a :href="handurl+book.id"><span>修改</span></a>
+                            <a href="javascript:void(0)" @click="deleteBook(book.id)"><span>删除</span></a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="block">
+                <div class="blocka">
+                    <el-pagination :background="true" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                                   :current-page="pageNum" :page-sizes="[2, 5, 10, 20]" :page-size="this.pageSize"
+                                   layout="total,prev, pager, next, sizes,jumper" :total="totalCount">
+                    </el-pagination>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function batchDelete() {
+            var isDelete = confirm("确认批量删除?");
+            if (isDelete) {
+                //获取复选框的id
+                var ids = [];
+                $("input:checkbox[name='selectBook']:checked").each(function () {
+                    ids.push($(this).val());
+                });
+ 
+                //批量删除
+                $.ajax({
+                    type: "post",
+                    url: "/book/batchDeleteBook?ids="+ids,
+                    success: function(result){
+                        alert("批量删除成功");
+                        //重新刷新页面
+                        location.href = "book_list.html"
+                    }
+                });
+
+            }
+        }
+        const app = new Vue({
+            el: '#app',
+            data: {
+                pageNum:1,
+                pageSize:10,
+                pageList:[
+                    {
+                        id:1,
+                        bookName:'1111',
+                        author: '1111',
+                        count: '1111',
+                        price: '1111',
+                        publish: '1111',
+                        statusCNtd: '1111',
+                    },
+                    {
+                        id: 2,
+                        bookName: '1111',
+                        author: '1111',
+                        count: '1111',
+                        price: '1111',
+                        publish: '1111',
+                        statusCNtd: '1111',
+                    }
+                ],
+                totalCount:100,
+                handurl:"book_update.html?bookId="
+            },
+            created: function () {
+       
+                this.setList(1)
+            }, methods:{
+
+                async setList  (num)  {
+                    res = await axios.get('/book/getListByPage',{
+                        params:{
+                            currentPage:num,
+                            pageSize:this.pageSize
+                        }
+                    })
+
+                    this.pageNum=num
+                    this.pageList=res.data.rows
+                    this.totalCount =res.data.totalCount
+             
+                },
+                handleCurrentChange(val){
+
+                    this.setList(val)
+      
+                },
+                handleSizeChange(val){
+                    this.pageSize(val)
+       
+                },
+
+                deleteBook(id) {
+              
+                    var isDelete = confirm("确认删除?");
+                    if(isDelete) {
+                        //删除图书
+                        //alert("删除成功");
+                        axios.get("/book/deleteBook",{
+                            params: {
+                                id: id
+                            },
+                        }).then(res=>{
+                            this.setList(this.pageNum)
+                            alert("删除成功");
+                        })
+
+                    }
+                }
+
+            }
+        })
+    </script>
+</div>
+</body>
+
+</html>

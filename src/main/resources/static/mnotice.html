@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书列表展示</title>
+    
+    <!-- 必须先引入vue，  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <!-- 引入element 的组件库-->
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="http://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="http://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- <script src="js/jq-paginator.js"></script> -->
+ 
+    <link rel="stylesheet" href="css/table.css">
+</head>
+
+<body>
+    <div id="app">
+        
+        <el-header>
+            <el-popconfirm title="退出登陆" @confirm="toLogin">
+                <el-avatar slot="reference" icon="el-icon-user-solid"></el-avatar>
+            </el-popconfirm>
+        
+            <h1>图书管理系统</h1>
+        
+        </el-header>
+        <el-container>
+        
+            <el-aside>
+                <el-menu class="el-menu-vertical-demo">
+                    <a href="manindex.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">首页</span>
+                        </el-menu-item>
+                    </a>
+                    <a href="book_list.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">书籍管理</span>
+                        </el-menu-item>
+                    </a>
+                    <a href="mnotice.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">公告</span>
+                        </el-menu-item>
+                    </a>
+                    <a href="maninfo.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">我的</span>
+                        </el-menu-item>
+                    </a>
+                </el-menu>
+            </el-aside>
+            <el-main>
+                <div v-if="!bj">
+                    <el-descriptions style="font-size: 25px; width: 80%;" direction="vertical" >
+                    
+                        <el-descriptions-item
+                            :label="noticeTitle">{{noticeContent}}</el-descriptions-item>
+                    </el-descriptions>
+                </div>
+                <div v-else>
+                    <div >
+                        <div style="font-size: 25px; ">公告标题：</div>
+                        <el-input type="text" style="width: 800px;margin: 20px ;font-size: 25px; " v-model="noticeTitle">
+                    </div> 
+                    
+                    <div >
+                        <div style="font-size: 25px; ">公告内容：</div>
+                        <textarea  style="width: 800px; margin: 20px;font-size: 25px;height: 600px;  border:1px solid #DCDFE6;" v-model="noticeContent"></textarea>
+                    </div>
+                </div>
+               
+                <el-button @click="open" style=" float: left;">编辑</el-button>
+                <el-button @click="borrowbook" style=" float: left;" v-if="bj">提交</el-button>
+            </el-main>
+            
+        </el-container>
+        
+        
+    </div>
+    <script>
+
+        const app = new Vue({
+            el: '#app',
+            data: {
+                noticeId:1,
+                noticeTitle:'561616',
+                noticeContent:'1111vnodaissssssssssssssssssssssssssssnoisnoonsanoasevnoeiawnvieanvoaweabvoweboovawoeibvgoweanvibweabgvweaobweoabwoebvowaebovawboevwoa',
+                
+                handurl: "book_update.html?bookId=",
+                bj:false
+            },
+            created: function () {
+ 
+                this.setList()
+            }, methods: {
+
+                async setList() {
+                    res = await axios.get('/book/getnotice')
+                    this.noticeId = res.data.noticeId
+                    this.noticeTitle = res.data.noticeTitle
+                    this.noticeContent = res.data.noticeContent
+                    
+                },
+                async borrowbook() {
+                    
+                    res = await axios.post('/book/updatanotice', {
+                        noticeTitle: this.noticeTitle,
+                        noticeContent: this.noticeContent
+                    })
+                    this.setList()
+                },
+                toLogin() {
+                    window.location.replace("login.html")
+                },
+                open() {
+                   if(this.bj===true){
+                    this.bj=false
+                   }else{
+                    this.bj=true
+                   }
+                }
+            }
+        })
+    </script>
+
+</body>
+
+</html>

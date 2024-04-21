@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书列表展示</title>
+   
+    <!-- 必须先引入vue，  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <!-- 引入element 样式-->
+    <link rel="stylesheet" href="http://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="http://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <!-- <link rel="stylesheet" href="css/list.css"> -->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- <script src="js/jq-paginator.js"></script> -->
+
+</head>
+
+<body>
+    <div id="app">
+        <el-header>
+            <el-popconfirm title="退出登陆" @confirm="toLogin">
+                <el-avatar slot="reference" icon="el-icon-user-solid"></el-avatar>
+            </el-popconfirm>
+        
+            <h1>图书管理系统</h1>
+        
+        </el-header>
+        <el-container>
+        
+            <el-aside>
+                <el-menu class="el-menu-vertical-demo">
+                    <a href="manindex.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">首页</span>
+                        </el-menu-item>
+                    </a>
+                
+                    <el-menu-item>
+                        <i class="el-icon-menu"></i>
+                        <span slot="title">书籍管理</span>
+                    </el-menu-item>
+                    <a href="mnotice.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">公告</span>
+                        </el-menu-item>
+                    </a>
+                    <a href="maninfo.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">我的</span>
+                        </el-menu-item>
+                    </a>
+                </el-menu>
+            </el-aside>
+            <el-main>
+                <div>
+                    <el-input v-model="searchName" style="display: inline-block;width: 350px;"></el-input>
+                    <el-button @click="search"  style="display: inline-block;">搜索</el-button>
+                </div>
+                
+                <el-table :data="pageList" style="width: 100%" @selection-change="handleSelectionChange">
+                    
+                    <el-table-column fixed prop="id" label="ID" width="150">
+                    </el-table-column>
+                    <el-table-column label="选择" type="selection" width="55"v-if="isbrdel">
+                    </el-table-column>
+                   
+                    <el-table-column prop="bookName" label="书名" width="120">
+                    </el-table-column>
+                    <el-table-column prop="author" label="作者" width="120">
+                    </el-table-column>
+                    <el-table-column prop="count" label="数量" width="120">
+                    </el-table-column>
+                    <el-table-column prop="price" label="定价" width="300">
+                    </el-table-column>
+                    <el-table-column prop="publish" label="出版社">
+                    </el-table-column>
+                    <el-table-column fixed="right" label="操作" width="100">
+                        <template slot-scope="scope">
+                            <el-button @click="setItem(scope.row)" type="text" size="small">更改</el-button>
+                            <el-button @click="deleteBook(scope.row.id)" type="text" size="small">删除</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+                <el-button style="display: inline-block;margin-right: 15px;margin-top: 15px;" @click="add">添加</el-button>
+                <el-button style="display: inline-block;margin-right: 15px;margin-top: 15px;" @click="branchdelete">批量删除</el-button>
+                <el-button v-if="isbrdel" @click="selectdel">确认删除</el-button>
+                <div class="block" style="display: inline-block;margin-left: 300px;margin-top: 15px;">
+                    <div class="blocka">
+                        <el-pagination :background="true" @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                            :current-page="pageNum" :page-sizes="[2, 5, 10, 20]" :page-size="this.pageSize"
+                            layout="total,prev, pager, next, sizes,jumper" :total="totalCount">
+                        </el-pagination>
+                    </div>
+                </div>
+            </el-main>
+            
+            <div class="model" v-if="visible">
+                <div
+                    style="background-color:white; box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1); display: flex ;justify-content: space-between;width: 500px;">
+                    <div style="width: 85%;">
+                        <el-form ref="form" :model="form" label-width="80px" >
+                            <el-form-item>
+                                <div style="height: 40px;width: 100%;"></div>
+                            </el-form-item>
+                            
+                            <el-form-item label="书名">
+                                <el-input v-model="handleItem.bookName" ></el-input>
+                            </el-form-item>
+                            <el-form-item label="作者">
+                                <el-input v-model="handleItem.author"></el-input>
+                            </el-form-item>
+                            <el-form-item label="数量">
+                                <el-input v-model="handleItem.count"></el-input>
+                            </el-form-item>
+                            <el-form-item label="定价">
+                                <el-input v-model="handleItem.price"></el-input>
+                            </el-form-item>
+                            
+                            <el-form-item>
+                                <el-button type="primary" @click="setListItem">提交</el-button>
+                                <el-button @click="visible=false">取消</el-button>
+                            </el-form-item>
+                        </el-form>
+                    </div>
+                </div>
+            </div>
+        </el-container>
+        
+    </div>
+
+    <script>
+        
+        const app = new Vue({
+            el: '#app',
+            data: {
+                pageNum:1,
+                pageSize:10,
+                pageList:[
+                    {
+                        id:1,
+                        bookName:'1111',
+                        author: '1111',
+                        count: '1111',
+                        price: '1111',
+                        publish: '1111',
+                        statusCNtd: '1111',
+                    },
+                    {
+                        id: 2,
+                        bookName: '1111',
+                        author: '1111',
+                        count: '1111',
+                        price: '1111',
+                        publish: '1111',
+                        statusCNtd: '1111',
+                    }
+                ],
+                handleItem:{
+                    id: 0,
+                    bookName: '',
+                    author: '',
+                    count: '',
+                    price: '',
+                    publish: '',
+                    statusCNtd: '',
+                },
+                visible:false,
+                totalCount:100,
+                handurl:"book_update.html?bookId=",
+                isbrdel:false,
+                ids:[],
+                searchName:'',
+            },
+            created: function () {
+                this.getlList(1)
+            }, methods:{
+
+                async getlList  (num)  {
+        
+                    res = await axios.get('/book/getListByPage',{
+                        params:{
+                            currentPage:num,
+                            pageSize:this.pageSize,
+                            name:this.searchName,
+                        }
+                    })
+
+                    this.pageNum=num
+                    this.pageList=res.data.data.records
+                    this.totalCount =res.data.data.total
+
+                },
+                handleCurrentChange(val){
+                    this.getlList(val)
+                    console.log(val);
+                },
+                handleSizeChange(val){
+                    this.pageSize(val)
+                    console.log(val);
+                },
+                setItem(item){
+                    this.handleItem=item
+                    this.visible=true
+                },
+                setListItem(){
+                    
+                    axios.post("/bool/updateBook",this.handleItem)
+                    this.visible=false
+                },
+                deleteBook(id) {
+                    console.log(id);
+                    var isDelete = confirm("确认删除?");
+                    if(isDelete) {
+                        //删除图书
+                        //alert("删除成功");
+                        axios.get("/book/deleteBook",{
+                            params: {
+                                id: id
+                            },
+                        }).then(res=>{
+                            this.getlList(this.pageNum)
+                            alert("删除成功");
+                        })
+
+                    }
+                },
+                branchdelete(){
+                    this.isbrdel=true
+                },
+                selectdel(){
+                    
+                    console.log(this.ids);
+                    axios.post('/book/batchDeleteBook',this.ids)
+                    this.isbrdel = false
+                },
+                toLogin() {
+                    window.location.replace("login.html")
+                },
+                handleSelectionChange(val) {
+                    this.ids = val.map(item => item.id).join(",");
+                },
+                search(){
+                    this.getlList(1)
+                },
+                add(){
+                    location.href="book_add.html"
+                    this.setList(1)
+                }
+            }
+        })
+    </script>
+</div>
+</body>
+
+</html>

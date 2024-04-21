@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书列表展示</title>
+
+    <!-- 必须先引入vue，  后使用element-ui -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <!-- 引入element 样式-->
+    <link rel="stylesheet" href="http://unpkg.zhimg.com/element-ui/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="http://unpkg.zhimg.com/element-ui/lib/index.js"></script>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/common.css">
+    <!-- <link rel="stylesheet" href="css/list.css"> -->
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <!-- <script src="js/jq-paginator.js"></script> -->
+
+</head>
+
+<body>
+    <div id="app">
+        <el-header style="position: relative;">
+            <span style="position: absolute; left: 120px;top: 20px;">{{userName}}</span>
+            <el-popconfirm title="退出登陆" @confirm="toLogin">
+        
+                <el-avatar slot="reference" icon="el-icon-user-solid"></el-avatar>
+            </el-popconfirm>
+        
+            <h1>图书管理系统</h1>
+        </el-header>
+        <el-container>
+
+            <el-aside>
+
+                <el-menu class="el-menu-vertical-demo" default-active="2">
+                    <a href="userindex.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">首页</span>
+                        </el-menu-item>
+                    </a>
+                    <el-submenu index="1">
+
+                        <template slot="title">
+                            <i class="el-icon-location"></i>
+                            <span>书本借还</span>
+                        </template>
+                        <el-menu-item-group>
+                            <a href="userborrow.html">
+                                <el-menu-item index="1-1">
+                                    <i class="el-icon-menu"></i>
+                                    借阅功能
+                                </el-menu-item>
+                            </a>
+                            <a href="userreturn.html">
+                                <el-menu-item index="1-2">
+                                    <i class="el-icon-menu"></i>
+                                    还书功能
+                                </el-menu-item>
+                            </a>
+                            <a href="history.html">
+                                <el-menu-item index="1-3">
+                                    <i class="el-icon-menu"></i>
+                                    历史
+                                </el-menu-item>
+                            </a>
+                        </el-menu-item-group>
+
+                    </el-submenu>
+                    <a href="notice.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">公告</span>
+                        </el-menu-item>
+                    </a>
+                    <a href="userinfo.html">
+                        <el-menu-item>
+                            <i class="el-icon-menu"></i>
+                            <span slot="title">我的</span>
+                        </el-menu-item>
+                    </a>
+                </el-menu>
+
+            </el-aside>
+            <el-main>
+                <el-table :data="pageList" style="width: 100%">
+                    <el-table-column fixed prop="id" label="ID" width="150">
+                    </el-table-column>
+                    <el-table-column prop="bookName" label="书名" width="120">
+                    </el-table-column>
+                    <el-table-column prop="author" label="作者" width="120">
+                    </el-table-column>
+                    <el-table-column prop="count" label="数量" width="120">
+                    </el-table-column>
+                    <el-table-column prop="price" label="定价" width="300">
+                    </el-table-column>
+                    <el-table-column prop="publish" label="出版社">
+
+                </el-table>
+                <div class="block">
+                    <div class="blocka">
+                        <el-pagination :background="true" @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange" :current-page="pageNum" :page-sizes="[2, 5, 10, 20]"
+                            :page-size="this.pageSize" layout="total,prev, pager, next, sizes,jumper"
+                            :total="totalCount">
+                        </el-pagination>
+                    </div>
+                </div>
+            </el-main>
+
+        </el-container>
+    </div>
+    <script>
+
+        const app = new Vue({
+            el: '#app',
+            data: {
+
+                pageNum: 1,
+                pageSize: 10,
+                pageList: [
+                    {
+                        id: 1,
+                        bookName: '1111',
+                        author: '1111',
+                        count: '1111',
+                        price: '1111',
+                        publish: '1111',
+                        statusCNtd: '1111',
+                    },
+                    {
+                        id: 2,
+                        bookName: '1111',
+                        author: '1111',
+                        count: '1111',
+                        price: '1111',
+                        publish: '1111',
+                        statusCNtd: '1111',
+                    }
+                ],
+                totalCount: 100,
+                handurl: "book_update.html?bookId=",
+                userName: '',
+            },
+            created: function () {
+                const uid = JSON.parse(window.localStorage.getItem('user')).name
+                if (uid) {
+                    this.userName = uid;
+                }
+                this.setList(1)
+            }, methods: {
+
+                async setList(num) {
+                    // 地址位置
+                    res = await axios.get('/book/getListByPage', {
+                        params: {
+                            currentPage: num,
+                            pageSize: this.pageSize,
+                            userName:this.userName,
+                           
+                        }
+                    })
+
+                    this.pageNum = num
+                    this.pageList = res.data.rows
+                    this.totalCount = res.data.totalCount
+                    console.log(this.pageNum, this.pageList, this.totalCount);
+                },
+                async borrowbook(num) {
+                    console.log(num);
+                    const uid = JSON.parse(window.localStorage.getItem('user')).name || 123123
+                    console.log(uid);
+                    res = await axios.get('/user/borrowbook', {
+                        params: {
+                            book_id: num,
+                            user_id: uid
+                        }
+                    })
+                    this.setList(num)
+                },
+                handleCurrentChange(val) {
+                    this.setList(val)
+                },
+                handleSizeChange(val) {
+                    this.pageSize(val)
+                },
+                toLogin() {
+                    location.replace("login.html")
+                }
+            }
+        })
+    </script>
+
+</body>
+
+</html>
